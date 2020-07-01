@@ -12,39 +12,51 @@ struct ContentView: View {
     @State  private var correctAnswer = Int.random(in: 0...2)
     @State private var showingScore = false
     @State private var scoreTitle = ""
+    @State private var totalScore = 0
+    @State private var flagValue   = ""
     var body: some View {
         ZStack {
-            LinearGradient(gradient: Gradient(colors: [.blue, .black]), startPoint: .top, endPoint: .bottom)
+            Color(#colorLiteral(red: 0.8980392157, green: 0.9333333333, blue: 1, alpha: 1))
                 .edgesIgnoringSafeArea(.all)
             VStack(spacing: 30) {
                 VStack {
                     Text("Tap the Flag of")
                         .font(.largeTitle)
-                        .foregroundColor(.white)
+                        .foregroundColor(.black)
                     Text(countries[correctAnswer])
                         .font(.largeTitle)
-                        .foregroundColor(.white)
+                        .foregroundColor(.black)
                         .fontWeight(.black)
                 }
                 ForEach(0..<3) { number in
-                    Button(action: {
-                        didFlagTapped(number)
-                    }){
-                        Image(self.countries[number])
-                            .renderingMode(.original)
-                            .clipShape(Capsule())
-                            .overlay(Capsule().stroke(Color.black, lineWidth: 1))
-                            .shadow(color: .black, radius: 2)
-                    }
-                    
+                    Rectangle()
+                        .fill(Color.white)
+                        .frame(width: 220, height: 130)
+                        .cornerRadius(10)
+                        .shadow(color: Color(#colorLiteral(red: 0.7608050108, green: 0.8164883852, blue: 0.9259157777, alpha: 1)), radius: 20, x: 20, y: 20)
+                                .shadow(color: Color(#colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)), radius: 20, x: -20, y: -20)
+                        .overlay(
+                            Button(action: {
+                                didFlagTapped(number)
+                            }){
+                                Image(self.countries[number])
+                                    .renderingMode(.original)
+                                    .clipShape(Capsule())
+                                    .overlay(Capsule().stroke(Color.black, lineWidth: 1))
+                            }
+
+                        )
+                        
+                                        
                 }
-                
+                Text("Current Score:\(totalScore)")
+                    .font(.largeTitle)
+                    .foregroundColor(Color.black)
                 Spacer()
                 
             }
         }.alert(isPresented: $showingScore) {
-            Alert(title: Text(scoreTitle), message: Text("your score is: ???"), dismissButton: .default(Text("OK"), action: {
-                self.askQuestion()
+            Alert(title: Text(scoreTitle), message: Text("Thats the Flag of: \(flagValue)"), dismissButton: .default(Text("OK"), action: {
             }))
         }
     }
@@ -52,10 +64,15 @@ struct ContentView: View {
     fileprivate func didFlagTapped(_ number : Int) {
         if number == correctAnswer {
             scoreTitle = "Correct"
+            totalScore += 1
         } else {
             scoreTitle = "Wrong"
+            totalScore -= 1
+            flagValue   = countries[number]
+            showingScore = true
         }
-        showingScore = true
+        self.askQuestion()
+
     }
     
     fileprivate func askQuestion() {
